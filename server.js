@@ -2,6 +2,10 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 
 const app = express();
+app.disable('x-powered-by');
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false }));
+
 const pool = mysql.createPool({
 	host: process.env.DB_HOST || '127.0.0.1',
 	port: Number(process.env.DB_PORT || 3306),
@@ -61,6 +65,10 @@ app.get('/health', async (request, response) => {
 	} catch (error) {
 		response.status(500).json({ status: 'error', message: 'Database non disponibile' });
 	}
+});
+
+app.use((request, response) => {
+	response.status(404).json({ error: 'Rotta non trovata' });
 });
 
 async function startServer() {
